@@ -1,0 +1,57 @@
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+import data_generator
+import globals
+import model
+import wandb
+
+"""
+    Here is the main call of the project. It assumes a learning system that is **parameter-free** in that everything
+    is defined in the dictionaries in globals.py. 
+
+    It assumes a readily available data loader. In the present version of the code it is a simple numpy table 
+    kept in memory that is pushed through, but basically anything Keras can do will work. 
+    The current call kicks off the user - embedding, which assumes a data tensor of shape
+    (no_users, no_docs,  total-size-of-doc)
+
+    Parameterization from globals:
+    no_users:set by the call to the data generator. Never used in the model definition, so no need to have in globals
+    no_docs: This is the max number of documents used to build a user profile. 
+                globals.data_params['max_no_documents_in_user_profile']
+    total-size-of-doc: Total raw-data-representation of each document. Size is defined as 
+                globals.data_params['title_size'] + globals.data_params['body_size'] + 2,
+                where the + 2 is one item for "category", and one for "subcategory"   
+
+    All data is assumed to be integers. The textual input  (the first globals.data_params['title_size'] + 
+    globals.data_params['body_size']) elements are word IDs, so assumed to be in 
+    [0, globals.data_params['vocabulary_size] - 1].
+    The category is in  [0, globals.data_params['no_categories] - 1].
+    The sub-category is in [0, globals.data_params['no_sub_categories] - 1].
+    """
+
+wandb.init(
+    project="NAML",
+    # name="Stuff",  # Should be something unique and informative... Defaults to strange texts that make no sense.
+    # that is perfectly OK, since w & b will log all (hyper-)parameters anyway, and therefore connects name to data
+    entity="adrianlangseth",
+    notes="Just testing",
+    job_type="train",
+    config=globals.model_params,  # Adding all settings to have them logged on the w & b GUI
+
+)
+m = model.naml('keras')
+(cand, hist), y = data_generator.load_dataset_npy(['20170101', '20170106'])
+cand_train, cand_val, hist_train, hist_val, y_train, y_val = train_test_split(cand, hist, y,
+                                                                              random_state=globals.model_params['seed'])
+model.train_naml(m,
+                 x_train=[cand_train, hist_train],
+                 y_train=y_train,
+                 x_val=[cand_val, hist_val],
+                 y_val=y_val,
+                 send_wandb=True,
+                 )
+
+# m.save('model', save_format='tf')
+
+wandb.finish()

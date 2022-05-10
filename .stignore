@@ -1,0 +1,12 @@
+**/.ipynb_checkpoints//**
+**/.vscode
+**/home
+**/data
+**/unused_pretrained_embedders
+**/__pycache__
+contentdata.tar
+one_week.tar
+**/old
+**/one_week
+**/venv
+**/interaction_data

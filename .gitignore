@@ -1,0 +1,15 @@
+
+
+.ipynb_checkpoints/
+data/
+home/
+interaction_data/
+obsolete/
+obsolete_naml_implementations/
+old/
+one_week/
+training_data/
+venv/
+wandb/
+
+
