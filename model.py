@@ -12,6 +12,7 @@ import tensorflow as tf
 import globals
 from wandb.keras import WandbCallback
 from flexible_layers import Slice
+import tensorflow_ranking as tfr
 
 warnings.filterwarnings('ignore')
 
@@ -343,13 +344,13 @@ def naml_both(embedder: str = 'gensim', click_predictor='neural', task: str = 'n
         size=globals.model_params['article_size'],
         name="slice_input_article"
     )
-    if (loc or historical_loc):
+    if loc or historical_loc:
         loc_slicer = Slice(
             begin=globals.model_params['article_size'],
             size=globals.data_params['max_locations_per_article'],
             name='slice_input_article_location_data',
         )
-    if (pos or historical_pos):
+    if pos or historical_pos:
         pos_slicer = Slice(
             begin=globals.model_params['article_size'] + globals.data_params['max_locations_per_article'],
             size=1,
@@ -365,7 +366,7 @@ def naml_both(embedder: str = 'gensim', click_predictor='neural', task: str = 'n
     encoded_user = user_encoder(history)
 
     if loc:
-        # noinspection PyCallingNonCallable
+        # noinspection PyCallingNonCallable PyUnboundLocalVariable
         candidate_loc = loc_slicer(full_candidate)
         # noinspection PyUnboundLocalVariable
         encoded_cand_locs = candidate_location_encoder(candidate_loc)
@@ -464,7 +465,7 @@ def naml_both(embedder: str = 'gensim', click_predictor='neural', task: str = 'n
 
         elif len(temp) == 3:
             neural_inputs = tf.concat(temp, axis=-1)
-            x = tf.keras.layers.Dense(4, activation='relu')(neural_inputs)
+            x = tf.keras.layers.Dense(6, activation='relu')(neural_inputs)
             x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
             full_model_output = x
     elif click_predictor == 'sum':
@@ -484,7 +485,7 @@ def naml_both(embedder: str = 'gensim', click_predictor='neural', task: str = 'n
     model.compile(
         optimizer=tf.keras.optimizers.Adam(globals.learning_params['learning_rate']),
         loss="binary_crossentropy",
-        metrics=["accuracy", tf.keras.metrics.MeanSquaredError()],
+        metrics=["accuracy", tfr.keras.metrics.get("ndcg", topn=5, name="NDCG@5")],
     )
 
     return model
@@ -525,38 +526,21 @@ def get_tasks():
 
 
 if __name__ == '__main__':
-    # wandb.init(
-    #    project="NAML",
-    #    # name="Stuff",  # Should be something unique and informative... Defaults to strange texts that make no sense.
-    #    # that is perfectly OK, since w & b will log all (hyper-)parameters anyway, and therefore connects name to data
-    #    entity="adrianlangseth",
-    #    notes="Just testing",
-    #    job_type="train",
-    #    config=globals.model_params,  # Adding all settings to have them logged on the w & b GUI
-    # )
 
     (x_c, x_u), y = data_generator.load_dataset_npy('locpos/20170101')
     cand_t, cand_v, hist_t, hist_v, y_t, y_v = sklearn.model_selection.train_test_split(x_c, x_u, y, random_state=
-        globals.model_params['seed'])
-
+    globals.model_params['seed'])
     for task in get_tasks():
-        print(f'-------{task}------')
-        print("--avg--")
-        m = naml_both('keras', 'avg', task)
-        train_naml(m,
-                   x_train=[cand_t, hist_t],
-                   y_train=y_t,
-                   x_val=[cand_v, hist_v],
-                   y_val=y_v,
-                   send_wandb=False)
+        wandb.init(
+            project="NAML",
+            name=f"{task}_neural_test",  # Should be something unique and informative... Defaults to strange texts that make no sense.
+            # that is perfectly OK, since w & b will log all (hyper-)parameters anyway, and therefore connects name to data
+            entity="adrianlangseth",
+            notes="Just testing",
+            job_type="train",
+            config=globals.model_params,  # Adding all settings to have them logged on the w & b GUI
+        )
+        m = naml_both('keras', 'neural', task)
+        train_naml(m, [cand_t, hist_t], y_t, [cand_v, hist_v], y_v, send_wandb=True)
 
-        m = naml_both('keras', 'max', task)
-        print("--max--")
-        train_naml(m,
-                   x_train=[cand_t, hist_t],
-                   y_train=y_t,
-                   x_val=[cand_v, hist_v],
-                   y_val=y_v,
-                   send_wandb=False)
-
-    # wandb.finish()
+        wandb.finish()

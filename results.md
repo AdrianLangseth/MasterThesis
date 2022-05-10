@@ -10,3 +10,14 @@ First run of all:
 | pos_loc_to_loc      | .0608 (98.5%) |               |               | XXXXXXXXXXXXX | XXXXXXXXXXXXX |
 | hist_pos_loc_to_loc | .0497 (98.9%) |               |               | .1329 (97.4%) | XXXXXXXXXXXXX |
 | comb_pos_loc_to_loc | .0807 (98.6%) |               |               | .1329 (97.4%) | XXXXXXXXXXXXX |
+
+
+
+comb_pos_loc_to_loc
+hist_pos_loc_to_loc
+pos_loc_to_loc
+loc_to_loc
+comb_pos_to_loc
+hist_pos_to_loc
+pos_to_loc
+news

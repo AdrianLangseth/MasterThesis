@@ -7,7 +7,7 @@ To get access from outside the file, do "import globals", then e.g. globals.lear
 # Parameters defining the actual learning.
 learning_params = {
     "learning_rate": 0.05,
-    "epochs": 40,
+    "epochs": 30,
     "batch_size": 4096,  # must be even if using a generator
     "seed": 42,
 }

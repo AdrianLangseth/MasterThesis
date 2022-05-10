@@ -80,10 +80,12 @@ class MaskedAveragePooling(tf.keras.layers.Layer):
         self.supports_masking = True
         super(MaskedAveragePooling, self).__init__(**kwargs)
 
+    # noinspection PyMethodMayBeStatic
     def compute_mask(self, input, input_mask=None):
         # We do not need to pass the mask in our use case.
         return None
 
+    # noinspection PyMethodMayBeStatic
     def call(self, x, mask=None):
         if mask is None:
             return tf.reduce_mean(x, axis=-2)
@@ -91,10 +93,10 @@ class MaskedAveragePooling(tf.keras.layers.Layer):
         float_mask = tf.cast(mask, tf.float32)
         embed_sized_float_mask = tf.keras.backend.repeat(float_mask, x.shape[-1])
         shaped_embed_sized_float_mask = tf.transpose(embed_sized_float_mask, [0, 2, 1])
-        corrected_embeds = x*shaped_embed_sized_float_mask
-        return tf.reduce_sum(corrected_embeds, axis=-2) / tf.reduce_sum(shaped_embed_sized_float_mask, axis=-2)
+        corrected_embeds = x * shaped_embed_sized_float_mask
+        return tf.reduce_sum(corrected_embeds, axis=-2) / (1.E-8 + tf.reduce_sum(shaped_embed_sized_float_mask, axis=-2))
 
-
+    # noinspection PyMethodMayBeStatic
     def compute_output_shape(self, input_shape):
         """
         :param input_shape: ( batch, locs, embed_size)
@@ -135,7 +137,7 @@ class DocumentEmbedder(tf.keras.layers.Layer):
         })
         return config
 
-    def build(self,  input_shape: tf.TensorShape):
+    def build(self, input_shape: tf.TensorShape):
         if len(input_shape) != 2:
             raise ValueError("DocumentEmbedder wants 2d input:\n "
                              "- Documents\n"
@@ -328,7 +330,7 @@ class ChineseAttention(tf.keras.layers.Layer):
         Shape will be  [input_shape[0], input_shape[1]]
         """
         attention_weight = attention / (
-            tf.reduce_sum(attention, axis=-1, keepdims=True) + tf.constant(1e-7)
+                tf.reduce_sum(attention, axis=-1, keepdims=True) + tf.constant(1e-7)
         )
 
         """
@@ -385,6 +387,7 @@ class Slice(tf.keras.layers.Layer):
     Slicing is done in the first data-dim (so, not batch-size-dim, but the following one.
     Whatever is not picked up by the slicing [:, begin : begin+size] is just dropped.
     """
+
     def __init__(self, begin: int = 0, size: int = 1, **kwargs):
         # Check params
         if begin < 0 or not isinstance(size, int):
@@ -452,6 +455,7 @@ class Slice2(tf.keras.layers.Layer):
     Slicing is done in the first data-dim (so, not batch-size-dim, but the following one.
     Whatever is not picked up by the slicing [:, begin : begin+size] is just dropped.
     """
+
     def __init__(self, begin: int = 0, size: int = 1, **kwargs):
         # Check params
         if begin < 0 or not isinstance(size, int):

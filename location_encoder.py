@@ -55,7 +55,7 @@ def get_location_encoders(embedding_layer):
         )  # (batch, max_loc)
 
         x = embedding_layer(inputs) # (batch, max_loc, embed)
-        x = MaskedAveragePooling()(x, mask=x._keras_mask)
+        x = MaskedAveragePooling()(x)
         return tf.keras.models.Model(inputs, x, name='candidate_location_encoder')
 
     def hist_loc(embedding_layer):
