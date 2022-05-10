@@ -11,5 +11,6 @@ one_week/
 training_data/
 venv/
 wandb/
-
+__pycache__/
+.idea/
 
