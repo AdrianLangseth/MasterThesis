@@ -6,19 +6,12 @@ import stopwordsiso
 import tensorflow as tf
 from nltk.tokenize import word_tokenize, sent_tokenize
 from tqdm import tqdm
-
-# TODO:
-# - Somethings fucky with articles with length 76. They have body as "P U B L I S E R T : 2 1 M A R S" OSV.
-#   - Need to remove these from dataset.
-#   - df['body_length'] = df['body'].apply(lambda x: len(x.split(' ')) if pd.notna(x) else 0)
-#   - same for 68, somewhat for 82 as well
-#   - not only for
-###################
-
-#  ########### TOKENIZATION #######################
 import globals
 
+#  ########### TOKENIZATION #######################
 
+
+# Unused, todo: delete
 def tokenize_sentence(text_sentence: str) -> list:
     text_sentence = text_sentence.lower()
     tokens = nltk.word_tokenize(text_sentence, language='norwegian')
@@ -29,6 +22,7 @@ def tokenize_sentence(text_sentence: str) -> list:
     return []
 
 
+# Unused, todo: delete
 def tokenize_article(body: str, max_length=1000):
     words = []
     if pd.isna(body):
@@ -45,9 +39,7 @@ def tokenize_article(body: str, max_length=1000):
     return words[:max_length]
 
 
-# TODO: Remove max sentence size
-# Todo: fix problems with "P U B L I S E R T 2 0 : 3 4 ..."
-def tokenize_norwegian_article(text, max_words=None, max_sentences=None):
+def tokenize_norwegian_article(text):
     # Removing pipes for correct sentence tokenization
     text = text.replace('|', '.')
     words_tokenized = []
@@ -58,23 +50,20 @@ def tokenize_norwegian_article(text, max_words=None, max_sentences=None):
                 sent_tokenized != ['Saken', 'oppdateres', '.']:  # and sent_tokenized[-1] in ['.', '!', '?', ';']
             sent_count += 1
             words_tokenized.extend(sent_tokenized)
-            if sent_count == max_sentences:
-                break
-    return words_tokenized[:max_words]
+    return words_tokenized
 
 
 def tokenize_dataset(df: pd.DataFrame):
     tqdm.pandas(desc='Tokenizing Dataset')
 
-    df.title = df.title.progress_apply(tokenize_norwegian_article,
-                                       args=(None, None))  # config.MAX_TITLE_WORD_TOKENS, config.MAX_TITLE_SENTENCE_TOKENS))
-    df.body = df.body.progress_apply(tokenize_norwegian_article,
-                                     args=(None, None))  # (config.MAX_ARTICLE_WORD_TOKENS, config.MAX_ARTICLE_SENTENCE_TOKENS))
+    df.title = df.title.progress_apply(tokenize_norwegian_article)
+    df.body = df.body.progress_apply(tokenize_norwegian_article)
 
     df.title = df.title.apply(lambda x: [i for i in x if len(i) > 1])  # Removes 1 character words and punctuation
     df.body = df.body.apply(lambda x: [i for i in x if len(i) > 1])  # Removes 1 character words and punctuation
 
 
+  # Unused todo: delete
 def tokenize_several(text_series: pd.Series):
     x = []
     for article in tqdm(text_series):
@@ -170,7 +159,8 @@ def get_embedding_layer_from_gensim(path: str = './data/embedder/embedder_model.
         input_dim=vocab_size,
         output_dim=embedding_dim,
         embeddings_initializer=tf.keras.initializers.Constant(wv),
-        trainable=False, )
+        trainable=False,
+        mask_zero=True)
 
     return embedded_sequences
 #  ########### EMBEDDER #######################

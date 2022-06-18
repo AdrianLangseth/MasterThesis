@@ -148,7 +148,7 @@ def idun():
 
 
 def main():
-    full_send(interaction_files=['one_week/20170101'], test=False)
+    full_send(interaction_files=[f'one_week/2017010{i}' for i in range(2,7)], test=False)
 
 
 if __name__ == '__main__':

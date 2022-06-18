@@ -37,11 +37,7 @@ embed with embed_size e: (h, l) -> (h, l, e)
 reshape: (h, l, e) -> (h*l, e)
 avg pooling: (h*l, e) -> e
 
-h fixed, l fixed, e fixed, 
-
-
-
-!!! Jeg må sende inn 3d, men den vil bare ta 2d fordi input er definert slik. Hvis jeg reduserer den ytterste dimmen så antar den at jeg snakker i en batch så da nekter den å røre den og tror jeg snakker om 3 cand's ikke 1 hist på 3 news.
+h fixed, l fixed, e fixed,
 
 
 The combination of loc score and news score can be implemented as pure dot or neural. Neural is supported by the XOR 

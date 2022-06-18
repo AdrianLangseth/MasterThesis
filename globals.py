@@ -7,7 +7,7 @@ To get access from outside the file, do "import globals", then e.g. globals.lear
 # Parameters defining the actual learning.
 learning_params = {
     "learning_rate": 0.05,
-    "epochs": 30,
+    "epochs": 20,
     "batch_size": 4096,  # must be even if using a generator
     "seed": 42,
 }
@@ -18,7 +18,7 @@ data_params = {
     'body_size': 50,  # Max number of words in the body of the news article
     'no_categories': 41,  # The total number of categories available. I don't know what this is...# Todo
     'no_sub_categories': 128,  # The total number of sub-categories available. I don't know what this is...# Todo
-    'vocabulary_size': 20000,  # Total number of different word in the vocabulary
+    'vocabulary_size': 1700,  # Total number of different word in the vocabulary
     'max_no_documents_in_user_profile': 5,  # The number of previous documents used by the user encoder.
     # 5 in the picture in the paper, but parameterized here for good practice
     # Embedder_params
@@ -46,7 +46,7 @@ model_params = {
     # Any text recognized by Keras works here: relu, selu, whatever.
     'dense_activation_function': 'relu',  # Activation-function to use in the dense layer.
     'category_embedding_dim': 10,  # Dimensions used to embed the (sub-)categories internally in the news-encoder
-    'similarity_function': 'dot', # The similarity function for scoring the different categories, can also be cosine
+    'similarity_function': 'dot',  # The similarity function for scoring the different categories, can also be cosine
 
 
 }

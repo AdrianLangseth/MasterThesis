@@ -1,7 +1,6 @@
 import tensorflow as tf
 import gensim
 import pandas as pd
-from tokenizer_embedder import tokenize_article
 from tqdm import tqdm
 from nltk import word_tokenize, sent_tokenize
 

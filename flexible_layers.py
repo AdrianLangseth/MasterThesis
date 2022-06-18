@@ -83,7 +83,15 @@ class MaskedAveragePooling(tf.keras.layers.Layer):
     # noinspection PyMethodMayBeStatic
     def compute_mask(self, input, input_mask=None):
         # We do not need to pass the mask in our use case.
-        return None
+
+        if input_mask is None:
+            return None
+
+        float_mask = tf.cast(input_mask, tf.float32)
+        embed_sized_float_mask = tf.keras.backend.repeat(float_mask, input.shape[-1])
+        shaped_embed_sized_float_mask = tf.transpose(embed_sized_float_mask, [0, 2, 1])
+
+        return shaped_embed_sized_float_mask
 
     # noinspection PyMethodMayBeStatic
     def call(self, x, mask=None):

@@ -1,5 +1,6 @@
 import warnings
 
+import keras
 import sklearn
 import wandb
 
@@ -526,21 +527,22 @@ def get_tasks():
 
 
 if __name__ == '__main__':
-
-    (x_c, x_u), y = data_generator.load_dataset_npy('locpos/20170101')
-    cand_t, cand_v, hist_t, hist_v, y_t, y_v = sklearn.model_selection.train_test_split(x_c, x_u, y, random_state=
-    globals.model_params['seed'])
+    (cand, hist), y = data_generator.load_dataset_npy('20170105')
+    cand_t, cand_v, hist_t, hist_v, y_t, y_v = sklearn.model_selection.train_test_split(cand, hist, y,
+                                                                                        random_state=globals.model_params['seed'])
     for task in get_tasks():
-        wandb.init(
-            project="NAML",
-            name=f"{task}_neural_test",  # Should be something unique and informative... Defaults to strange texts that make no sense.
-            # that is perfectly OK, since w & b will log all (hyper-)parameters anyway, and therefore connects name to data
-            entity="adrianlangseth",
-            notes="Just testing",
-            job_type="train",
-            config=globals.model_params,  # Adding all settings to have them logged on the w & b GUI
-        )
-        m = naml_both('keras', 'neural', task)
-        train_naml(m, [cand_t, hist_t], y_t, [cand_v, hist_v], y_v, send_wandb=True)
+        for click_predictor in ['neural', 'dot', 'sum', 'avg', 'max']:
+            m = naml_both('keras', click_predictor, task)
+            train_naml(m, [cand_t, hist_t], y_t, [cand_v, hist_v], y_v, send_wandb=False)
+    #
+    #     wandb.init(
+    #         project="NAML",
+    #         name=f"{task}_popularity",  # Should be something unique and informative... Defaults to strange texts that make no sense.
+    #         # that is perfectly OK, since w & b will log all (hyper-)parameters anyway, and therefore connects name to data
+    #         entity="adrianlangseth",
+    #         notes="New Negative Sampling Method",
+    #         job_type="train",
+    #         config=globals.model_params,  # Adding all settings to have them logged on the w & b GUI
+    #     )
+    #     wandb.finish()
 
-        wandb.finish()

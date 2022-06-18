@@ -1,17 +1,12 @@
-import argparse
 import pandas as pd
 import os
-from collections import defaultdict, Counter
+from collections import defaultdict
 import json
 import numpy as np
-import nltk
 from dateutil.parser import parse
-from joblib import Parallel, delayed
 from sklearn.utils import class_weight
-import tensorflow as tf
 from tqdm import tqdm
 import pickle
-from time import time
 import warnings
 
 from tokenizer_embedder import build_embedder, tokenize_dataset, save_embedder, generate_corpus, vectorize_textual_data
@@ -103,7 +98,7 @@ def load_contents_from_files_list(root_path, files_list):
     articles = []
 
     "Parsing articles:"
-    for idx, filename in enumerate(tqdm(files_list)):
+    for idx, filename in enumerate(tqdm(files_list, desc='Loading content data from JSON', ascii=True)):
         file_content = parse_content_file(os.path.join(root_path, filename))
         if file_content is None:
             invalid_contents_count += 1
@@ -163,7 +158,7 @@ def process_naml_cat_features(df: pd.DataFrame) -> (pd.DataFrame, dict, dict):
     article_id_encoder = get_categ_encoder_from_values(news_df['id'])
     news_df['id_encoded'] = transform_categorical_column(news_df['id'], article_id_encoder)
 
-    news_df.set_index('id_encoded', inplace=True)
+    news_df.set_index('id_encoded', inplace=True, drop=False)
 
     # Category
     category0_encoder = get_categ_encoder_from_values(news_df['category0'].unique())
@@ -305,7 +300,7 @@ def execute_full_data_preperation(
         embedder_out_fp: str = 'data/embedder/embedder_model'
 ):
     # Load_data
-    loaded_data = load_contents_from_folder(content_folder, subset=True)
+    loaded_data = load_contents_from_folder(content_folder)
     # Preprocess data
     preprocessed_data: pd.DataFrame = preprocess_article_data(loaded_data)
     # generate categorical encodings and label weights

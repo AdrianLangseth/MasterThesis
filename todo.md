@@ -38,3 +38,10 @@ GENERATOR -> Full batch:
 Implement metrics:
 - Ndcg: sklearn.metrics.ndcg_score(y, y_pred)
   - Requires on shape (no_samples, n_labels), but in reality i must 
+
+
+Create better test dataset. It is currently too easy. To possibilities:
+  - Fresh News: only sample negs from articles PUBLISHED on the day in question.
+  - Read News: only sample negs from articles READ on the day in question.
+
+Implement WandB on IDUN. Generate some data, 
